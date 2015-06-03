@@ -2,6 +2,7 @@ import sys
 from matplotlib.image import imread
 import numpy as np
 from scipy.cluster.vq import kmeans, whiten
+import cPickle as pickle
 
 CHARSIZE = 28
 
@@ -20,7 +21,7 @@ phrase = imread(sys.argv[1])
 phrase = phrase[:,:,0:2]
 phrase = np.mean(phrase, axis=2)
 phrase = phrase * -1 + 1
-draw(phrase[:,1:28])
+#draw(phrase[:,1:28])
 phrasetemp = np.zeros((phrase.shape[0]+CHARSIZE, phrase.shape[1]+CHARSIZE))
 phrasetemp[CHARSIZE/2:-CHARSIZE/2,CHARSIZE/2:-CHARSIZE/2] = phrase
 phrase = phrasetemp
@@ -35,7 +36,7 @@ nz[:,1] = nzx
 #whitened = whiten(nz)
 #print whitened
 centroids = kmeans(nz, 5)
-print centroids
+#print centroids
 
 cents = []
 for i in range(centroids[0].shape[0]):
@@ -44,6 +45,15 @@ for i in range(centroids[0].shape[0]):
     cents.append(pos)
 
 cents = sorted(cents, key=lambda c: c[1])
-print cents
+#print cents
+model = pickle.load(open('mnist_nn_model.pkl', 'rb'))
+chars = []
 for y, x in cents:
-    draw(phrase[y-CHARSIZE/2:y+CHARSIZE/2,x-CHARSIZE/2:x+CHARSIZE/2])
+    char = phrase[y-CHARSIZE/2:y+CHARSIZE/2,x-CHARSIZE/2:x+CHARSIZE/2]
+    #draw(char)
+    char = char.reshape((1,CHARSIZE**2))
+    pred = model.predict(char, verbose=0)
+    #print pred
+    #print np.argmax(pred)
+    chars.append(str(np.argmax(pred)))
+print ''.join(chars)
