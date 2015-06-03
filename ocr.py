@@ -50,10 +50,10 @@ model = pickle.load(open('mnist_nn_model.pkl', 'rb'))
 chars = []
 for y, x in cents:
     char = phrase[y-CHARSIZE/2:y+CHARSIZE/2,x-CHARSIZE/2:x+CHARSIZE/2]
-    #draw(char)
+    draw(char)
     char = char.reshape((1,CHARSIZE**2))
     pred = model.predict(char, verbose=0)
-    #print pred
+    print pred
     #print np.argmax(pred)
     chars.append(str(np.argmax(pred)))
 print ''.join(chars)
